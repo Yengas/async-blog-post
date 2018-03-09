@@ -1,0 +1,22 @@
+{
+  "name": "async-makale-code",
+  "version": "1.0.0",
+  "description": "Async kavramı, event loop, promise, async/await, rxjs üzerine bir makale için yazılan örnek kodlar.",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "async",
+    "event",
+    "loop",
+    "tutorial",
+    "rxjs",
+    "turkish"
+  ],
+  "author": "Yengas",
+  "license": "ISC",
+  "dependencies": {
+    "sync-request": "^6.0.0"
+  }
+}
