@@ -1,0 +1,9 @@
+btc
+eth
+xrp
+ltc
+neo
+ada
+xmr
+waves
+shift
