@@ -17,6 +17,8 @@
   "author": "Yengas",
   "license": "ISC",
   "dependencies": {
+    "request": "^2.83.0",
+    "request-promise-native": "^1.0.5",
     "sync-request": "^6.0.0"
   }
 }
