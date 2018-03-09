@@ -7,24 +7,48 @@ const readFilePromise = promisify(fs.readFile);
 // promise döndürecek şekilde async istek yapmamızı sağlayacak olan kütüphane.
 const request = require('request-promise-native');
 
+// verilen 
+function convertFileBufferToIDArray(buffer){
+  return buffer.toString().split('\n');
+}
+
+// verilen string'i json parse yaparak, film modeline çevirme işlemi.
+function parseResponseToTitleAndDescription(resultStr){
+  const body = JSON.parse(resultStr);
+  return { title, description } = body;
+}
+
+// verilen başlık ve açıklamayı, konsola yazdırma
+function outputMovieToConsole({ title, description }){
+  console.log(`Film Adı: ${title}`);
+  console.log(`Filmin açıklaması: ${description}`);
+}
+
+// string olarak gelen cevabı film modeline işle ve ekrana bastır.
+function parseAndOutput(resultStr){
+  const movie = parseResponseToTitleAndDescription(resultStr);
+  return outputMovieToConsole(movie);
+}
+
 // sync benzeri kod yazabilmek için, async (promise döndüren) bir fonksiyon yazalım.
 async function main(){
   // Dosya okuyan async kodu başlatalım, sonuctaki her bir satırı, dizi elemanı olarak alalım.
-  const movieIDs = (await readFilePromise('../data/ghibli_movies.txt')).toString().split('\n');
+  const buffer = await readFilePromise('../data/ghibli_movies.txt');
+  const movieIDs = convertFileBufferToIDArray(buffer);
 
-  // Her bir dizi elemanı için async olarak istek gönderelim.
-  for(let movieID of movieIDs){
-    // API'ye yaptığımız istek
-    const resultStr = await request(`https://ghibliapi.herokuapp.com/films/${movieID}`);
-    // API'den gelen string cevabı, javascript objesini çevirmek için JSON parse işlemi
-    const body = JSON.parse(resultStr);
-    // obje içerisindeki title ve description değerlerinin, aynı isimle değişkene atanması.
-    const { title, description } = body;
+  // Promise all kullanarak, aynı anda birden fazla async işlem başlatıp, hepsinin bitmesini bekleyebiliriz.
+  // await ile bu işlemler bitmeden main fonksiyonunu sonlandırmak istemediğimiz söylüyoruz.
+  await Promise.all(
+      // her bir film id için,
+      movieIDs.map((movieID) => 
+        // async bir işlem başlat
+        request(`https://ghibliapi.herokuapp.com/films/${movieID}`)
+          // bu işlem bittikten sonra, sonucu işle ve ekrana yazdır.
+          .then(parseAndOutput)
+      )
+  )
 
-    // Artık sonucu ekrana yazdırabiliriz.
-    console.log(`Film Adı: ${title}`);
-    console.log(`Filmin açıklaması: ${description}`);
-  }
+  console.log('Main fonksiyonunun çalışması bitti.');
 }
 
 // main fonksiyonunu çalıştır, ve dönen promise değerinde sonuç ve hata olması durumunda, konsola çıktı ver.
