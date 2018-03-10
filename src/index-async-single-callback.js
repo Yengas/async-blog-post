@@ -17,6 +17,7 @@ function main(cb){
      parseAndOutput(resultStr);
 
      console.log('Main fonksiyonunun çalışması bitti.');
+     cb(null, null);
   });
 }
 
