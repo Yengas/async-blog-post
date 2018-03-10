@@ -1,3 +1,4 @@
+const path = require('path');
 // verilen buffer'ı id dizisine çevirir.
 function convertFileBufferToIDArray(buffer){
   return buffer.toString().split('\n');
@@ -21,7 +22,13 @@ function parseAndOutput(resultStr){
   return outputMovieToConsole(movie);
 }
 
+// data klasöründeki dosyayı almamıza yardımcı olan fonksiyon.
+function getDataFile(file){
+  return path.join(__dirname, '../data', file);
+}
+
 module.exports = {
   convertFileBufferToIDArray,
-  parseAndOutput
+  parseAndOutput,
+  getDataFile
 };

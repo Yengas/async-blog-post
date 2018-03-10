@@ -7,7 +7,7 @@
 // Dosya okumak için node.js kütüphanemizi alalım.
 const fs = require('fs');
 // uygulamamızın çalışmasına yardımcı olacak ortak fonksiyonları alalım.
-const { convertFileBufferToIDArray, parseAndOutput } = require('./generic.js');
+const { convertFileBufferToIDArray, parseAndOutput, getDataFile } = require('./generic.js');
 // node.js error-first callbackleri Promise'e çevirmemize yardımcı olan fonksiyon
 const { promisify } = require('util');
 // readFile error first async fonksiyonunu, promise döndürecek şekilde çeviriyoruz.
@@ -18,7 +18,7 @@ const request = require('request-promise-native');
 // sync benzeri kod yazabilmek için, async (promise döndüren) bir fonksiyon yazalım.
 async function main(){
   // Dosya okuyan async kodu başlatalım, sonuctaki her bir satırı, dizi elemanı olarak alalım.
-  const buffer = await readFilePromise('../data/ghibli_movies.txt');
+  const buffer = await readFilePromise(getDataFile('ghibli_movies.txt'));
   const movieIDs = convertFileBufferToIDArray(buffer);
 
   for(let movieID of movieIDs){

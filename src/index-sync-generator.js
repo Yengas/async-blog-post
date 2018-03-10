@@ -6,14 +6,14 @@
 // Dosya okumak için node.js kütüphanemizi alalım.
 const fs = require('fs');
 // uygulamamızın çalışmasına yardımcı olacak ortak fonksiyonları alalım.
-const { convertFileBufferToIDArray, parseAndOutput } = require('./generic.js');
+const { convertFileBufferToIDArray, parseAndOutput, getDataFile } = require('./generic.js');
 // promise döndürecek şekilde async istek yapmamızı sağlayacak olan kütüphane.
 const request = require('sync-request');
 
 // adım adım çalışan generator kodu yazmak için fonksiyonu * işareti ile generater olarak tanımlayalım.
 function* main(){
   // Dosya okuyan sync kodumuzu başlatalım.
-  const buffer = fs.readFileSync('../data/ghibli_movies.txt');
+  const buffer = fs.readFileSync(getDataFile('ghibli_movies.txt'));
   // Geri dönen buffer cevabını film id dizisine çevirelim.
   const movieIDs = convertFileBufferToIDArray(buffer);
 
