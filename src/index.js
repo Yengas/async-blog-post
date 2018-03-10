@@ -6,6 +6,10 @@ const { promisify } = require('util');
 const readFilePromise = promisify(fs.readFile);
 // promise döndürecek şekilde async istek yapmamızı sağlayacak olan kütüphane.
 const request = require('request-promise-native');
+// rxjs kütüphanesini ekliyelim
+const Rx = require('rxjs/Rx');
+// kullanacağımız operatörleri alalım
+const { mergeMap, takeUntil } = require('rxjs/operators');
 
 // verilen 
 function convertFileBufferToIDArray(buffer){
@@ -30,23 +34,26 @@ function parseAndOutput(resultStr){
   return outputMovieToConsole(movie);
 }
 
+const timeoutPromise = new Promise((resolve, reject) => setTimeout(resolve, 2000));
 // sync benzeri kod yazabilmek için, async (promise döndüren) bir fonksiyon yazalım.
 async function main(){
   // Dosya okuyan async kodu başlatalım, sonuctaki her bir satırı, dizi elemanı olarak alalım.
   const buffer = await readFilePromise('../data/ghibli_movies.txt');
-  const movieIDs = convertFileBufferToIDArray(buffer);
+  const movieIDs$ = Rx.Observable.from(convertFileBufferToIDArray(buffer));
 
-  // Promise all kullanarak, aynı anda birden fazla async işlem başlatıp, hepsinin bitmesini bekleyebiliriz.
-  // await ile bu işlemler bitmeden main fonksiyonunu sonlandırmak istemediğimiz söylüyoruz.
-  await Promise.all(
-      // her bir film id için,
-      movieIDs.map((movieID) => 
-        // async bir işlem başlat
-        request(`https://ghibliapi.herokuapp.com/films/${movieID}`)
-          // bu işlem bittikten sonra, sonucu işle ve ekrana yazdır.
-          .then(parseAndOutput)
-      )
-  )
+  // movieIDs streamini işlemek için bir hat oluştur, promise'e döndür ve bitmesini bekle.
+  await movieIDs$.pipe(
+      // her akıştan gelen veri için, verilen fonksiyondaki işlemi yap.
+      mergeMap((movieID) =>
+        // movieID için istek gönder, sonucu işle.
+        request(`https://ghibliapi.herokuapp.com/films/${movieID}`).then(parseAndOutput),
+        undefined,
+        // aynı anda en fazla 5 promise bekliyor durumda olsun.
+        5
+      ),
+      // timeoutPromise bitene kadar çalış!
+      takeUntil(timeoutPromise)
+  ).toPromise();
 
   console.log('Main fonksiyonunun çalışması bitti.');
 }
